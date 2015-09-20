@@ -1,0 +1,94 @@
+<p>
+  <label for="settings_enabled">Enabled</label>
+  <%= check_box_tag 'settings[enabled]', '1', Setting.plugin_alternative_home_page['enabled'] == '1' %>
+</p>
+
+<p>
+  <label for="settings_redirect">Use redirect (changes displayed URL)</label>
+  <%= check_box_tag 'settings[redirect]', '1', Setting.plugin_alternative_home_page['redirect'] == '1' %>
+</p>
+
+<% if Rails.env.development? %>
+  <div class="flash warning" id="flash_notice">
+    You are running in <b>development</b> mode. PLease note that because of constant autoloading only already visited controllers are listed.
+  </div>
+<% end %>
+
+<p>
+  <%
+    controller_options = []
+    controller_options.concat(ApplicationController.descendants.map do |d|
+      [d.name.sub('Controller', '').underscore.humanize, d.name.sub('Controller', '').underscore]
+    end)
+    selected_controller = params[:c].present? ? params[:c] : Setting.plugin_alternative_home_page['controller']
+  %>
+  <label for="settings_controller">Controller</label>
+  <%= select_tag 'settings[controller]', options_for_select(controller_options, selected_controller) %>
+</p>
+
+<p>
+  <%
+    action_options = []
+    if selected_controller
+      actions = ("#{selected_controller}_controller".classify.constantize.action_methods - ApplicationController.action_methods) rescue nil
+      action_options.concat(actions.map do |m|
+        [m, m]
+      end) if actions
+    end
+  %>
+  <label for="settings_action">Action</label>
+  <%= select_tag 'settings[action]', options_for_select(action_options, Setting.plugin_alternative_home_page['action']) %>
+</p>
+
+<p>
+  <label for="settings_params">Params</label>
+  <%= text_field_tag 'settings[params]', Setting.plugin_alternative_home_page['params'] %>
+  <em class="info">
+    Semicolon separated list of key=value:<br />
+    id=value;project_id=name_or_id;other_param=oteher_value
+  </em>
+</p>
+
+<hr />
+<h3>Examples:</h3>
+
+<table style="width: 100%">
+  <tbody>
+    <tr>
+      <td>
+        <b><u>To show a wiki page of a project</u></b><br /><br />
+        Controller: <b>Wiki</b><br />
+        Action: <b>show</b><br />
+        Params: <b>project_id=1</b><br /><br />
+        project_id can be numeric ID or project identifier
+      </td>
+      <td>
+        <b><u>To show a project</u></b><br /><br />
+        Controller: <b>Project</b><br />
+        Action: <b>show</b><br />
+        Params: <b>id=1</b><br /><br />
+        id can be numeric ID or project identifier
+      </td>
+      <td>
+        <b><u>To show project activity</u></b><br /><br />
+        Controller: <b>Activities</b><br />
+        Action: <b>index</b><br />
+        Params: <b>id=1</b><br /><br />
+        id can be numeric ID or project identifier
+      </td>
+    </tr>
+    <tr>
+      <td colspan=3 style="padding: 20px; text-align: center;">
+        <b>For more examples please visit forums or file an issue at <%= link_to "ChiliProject.eu", "http://www.chiliproject.eu" %>.</b>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<script>
+  $(function(){
+    $('#settings_controller').on('change', function(e){
+      window.location = window.location.pathname + '?c=' + $(e.currentTarget).val();
+    });
+  });
+</script>
