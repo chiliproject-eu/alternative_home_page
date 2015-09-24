@@ -1,6 +1,6 @@
 module AlternativeHomePageHelpers
 
-  def initialize_alternative_home_page_from_settings!
+  module_function def initialize_alternative_home_page_from_settings!
     home_route = Rails.application.routes.named_routes.instance_variable_get('@routes')[:home]
     if Setting.plugin_alternative_home_page['enabled'] == '1'
       home_page_params = {
@@ -20,7 +20,5 @@ module AlternativeHomePageHelpers
       home_route.instance_variable_set('@defaults', {:controller=>"welcome", :action=>"index"})
     end
   end
-
-  module_function :initialize_alternative_home_page_from_settings!
 
 end
