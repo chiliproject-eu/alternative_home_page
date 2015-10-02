@@ -10,6 +10,10 @@ Redmine::Plugin.register :alternative_home_page do
 end
 
 ActionDispatch::Callbacks.to_prepare do
+  Rails.application.routes.prepend do
+    root to: 'welcome#index', formats: [ :html ], as: :alternative_home_page
+  end
+
   require_dependency 'alternative_home_page/welcome_controller_patch'
   require_dependency 'alternative_home_page/settings_controller_patch'
   require_dependency 'alternative_home_page/alternative_home_page_helpers'
